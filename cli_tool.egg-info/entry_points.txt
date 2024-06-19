@@ -1,0 +1,2 @@
+[console_scripts]
+cli_tool = cli_tool:cli
