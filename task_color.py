@@ -1,8 +1,10 @@
 import click
 import json
 import os
-import yaml
 import csv
+from colorama import init, Fore, Style
+
+init(autoreset=True)
 
 TASKS_FILE = 'tasks.json'
 FORMAT = 'json'
@@ -12,8 +14,6 @@ def load_tasks():
         with open(TASKS_FILE, 'r', encoding='utf-8') as file:
             if FORMAT == 'json':
                 tasks = json.load(file)
-            elif FORMAT == 'yaml':
-                tasks = yaml.safe_load(file)
             elif FORMAT == 'csv':
                 reader = csv.DictReader(file)
                 tasks = [row for row in reader]
@@ -23,6 +23,7 @@ def load_tasks():
             if all(isinstance(task, dict) and 'description' in task and 'completed' in task for task in tasks):
                 return tasks
             else:
+                click.echo("Ошибка формата данных. Файл будет перезаписан.")
                 return []
     return []
 
@@ -30,8 +31,6 @@ def save_tasks(tasks):
     with open(TASKS_FILE, 'w', encoding='utf-8') as file:
         if FORMAT == 'json':
             json.dump(tasks, file, ensure_ascii=False, indent=4)
-        elif FORMAT == 'yaml':
-            yaml.dump(tasks, file, allow_unicode=True, default_flow_style=False, sort_keys=False)
         elif FORMAT == 'csv':
             writer = csv.DictWriter(file, fieldnames=['description', 'completed'])
             writer.writeheader()
@@ -41,7 +40,7 @@ def save_tasks(tasks):
             return
 
 @click.group()
-@click.option('--format', default='json', help="Формат файла задач: json, yaml, csv.")
+@click.option('--format', default='json', help="Формат файла задач: json, csv.")
 def cli(format):
     """Простое приложение для управления списком дел."""
     global FORMAT
@@ -79,7 +78,7 @@ def list():
     if tasks:
         click.echo("Список задач:")
         for idx, task in enumerate(tasks):
-            status = "✔️" if task['completed'] else "❌"
+            status = Fore.GREEN + "✔️" if task['completed'] else Fore.RED + "❌"
             click.echo(f"{idx}: {status} {task['description']}")
     else:
         click.echo("Список задач пуст.")
@@ -131,7 +130,7 @@ def filter(completed, uncompleted):
     if filtered_tasks:
         click.echo("Список задач:")
         for idx, task in enumerate(filtered_tasks):
-            status = "✔️" if task['completed'] else "❌"
+            status = Fore.GREEN + "✔️" if task['completed'] else Fore.RED + "❌"
             click.echo(f"{idx}: {status} {task['description']}")
     else:
         click.echo("Нет задач, удовлетворяющих критериям фильтрации.")
@@ -146,7 +145,7 @@ def search(keyword):
     if found_tasks:
         click.echo("Найденные задачи:")
         for idx, task in found_tasks:
-            status = "✔️" if task['completed'] else "❌"
+            status = Fore.GREEN + "✔️" if task['completed'] else Fore.RED + "❌"
             click.echo(f"{idx}: {status} {task['description']}")
     else:
         click.echo("Нет задач, содержащих данное ключевое слово.")
