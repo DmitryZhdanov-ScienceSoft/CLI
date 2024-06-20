@@ -3,7 +3,7 @@ import json
 import os
 import csv
 from colorama import init, Fore, Style
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 init(autoreset=True)
@@ -87,8 +87,15 @@ def list():
                 status = Fore.GREEN + "✔️"
                 start_time = datetime.fromisoformat(task['start_time']) if task['start_time'] else None
                 end_time = datetime.fromisoformat(task['end_time']) if task['end_time'] else None
-                time_spent = end_time - start_time if start_time and end_time else None
-                time_str = f" (Время выполнения: {time_spent})" if time_spent else ""
+                if start_time and end_time:
+                    time_spent = end_time - start_time
+                    days, seconds = time_spent.days, time_spent.seconds
+                    hours = days * 24 + seconds // 3600
+                    minutes = (seconds % 3600) // 60
+                    seconds = seconds % 60
+                    time_str = f" (Время выполнения: {hours} ч {minutes} мин {seconds} сек)"
+                else:
+                    time_str = ""
             elif task['pending']:
                 status = Fore.YELLOW + "🕒"
                 time_str = ""
@@ -144,15 +151,16 @@ def mark(task_id, completed, uncompleted, pending):
                 while True:
                     time.sleep(1)
             except KeyboardInterrupt:
-                tasks[task_id]['completed'] = False
+                tasks[task_id]['completed'] = True
                 tasks[task_id]['pending'] = False
                 tasks[task_id]['end_time'] = datetime.now().isoformat()
                 save_tasks(tasks)
-                click.echo(f"Ожидание задачи с ID '{task_id}' остановлено.")
+                click.echo(f"Ожидание задачи с ID '{task_id}' остановлено и задача помечена как выполненная.")
                 return
         save_tasks(tasks)
     else:
         click.echo(f"Задача с ID '{task_id}' не найдена.")
+
 
 @cli.command()
 @click.option('--completed', is_flag=True, help="Показать только выполненные задачи.")
@@ -177,8 +185,15 @@ def filter(completed, uncompleted, pending):
                 status = Fore.GREEN + "✔️"
                 start_time = datetime.fromisoformat(task['start_time']) if task['start_time'] else None
                 end_time = datetime.fromisoformat(task['end_time']) if task['end_time'] else None
-                time_spent = end_time - start_time if start_time and end_time else None
-                time_str = f" (Время выполнения: {time_spent})" if time_spent else ""
+                if start_time and end_time:
+                    time_spent = end_time - start_time
+                    days, seconds = time_spent.days, time_spent.seconds
+                    hours = days * 24 + seconds // 3600
+                    minutes = (seconds % 3600) // 60
+                    seconds = seconds % 60
+                    time_str = f" (Время выполнения: {hours} ч {minutes} мин {seconds} сек)"
+                else:
+                    time_str = ""
             elif task['pending']:
                 status = Fore.YELLOW + "🕒"
                 time_str = ""
@@ -203,8 +218,15 @@ def search(keyword):
                 status = Fore.GREEN + "✔️"
                 start_time = datetime.fromisoformat(task['start_time']) if task['start_time'] else None
                 end_time = datetime.fromisoformat(task['end_time']) if task['end_time'] else None
-                time_spent = end_time - start_time if start_time and end_time else None
-                time_str = f" (Время выполнения: {time_spent})" if time_spent else ""
+                if start_time and end_time:
+                    time_spent = end_time - start_time
+                    days, seconds = time_spent.days, time_spent.seconds
+                    hours = days * 24 + seconds // 3600
+                    minutes = (seconds % 3600) // 60
+                    seconds = seconds % 60
+                    time_str = f" (Время выполнения: {hours} ч {minutes} мин {seconds} сек)"
+                else:
+                    time_str = ""
             elif task['pending']:
                 status = Fore.YELLOW + "🕒"
                 time_str = ""
