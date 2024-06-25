@@ -1,5 +1,5 @@
 import click
-import termplotlib as tpl
+import matplotlib.pyplot as plt
 import numpy as np
 
 @click.group()
@@ -11,19 +11,24 @@ def cli():
 def show_histogram():
     """Показать гистограмму случайных данных."""
     data = np.random.randn(1000)
-    counts, bin_edges = np.histogram(data, bins=30)
-    fig = tpl.figure()
-    fig.hist(counts, bin_edges, force_ascii=False)
-    fig.show()
+    plt.hist(data, bins=30, color='blue', alpha=0.7)
+    plt.title('Гистограмма случайных данных')
+    plt.xlabel('Значение')
+    plt.ylabel('Частота')
+    plt.grid(True)
+    plt.show()
 
 @cli.command()
 def show_plot():
     """Показать линейный график."""
     x = np.linspace(0, 10, 100)
     y = np.sin(x)
-    fig = tpl.figure()
-    fig.plot(x, y, width=60, height=20)
-    fig.show()
+    plt.plot(x, y, color='green', linestyle='-', linewidth=2, marker='o', markerfacecolor='red')
+    plt.title('Линейный график')
+    plt.xlabel('X')
+    plt.ylabel('sin(X)')
+    plt.grid(True)
+    plt.show()
 
 if __name__ == "__main__":
     cli()
