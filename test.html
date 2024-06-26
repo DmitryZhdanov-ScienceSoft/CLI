@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CLI Menu Example</title>
+</head>
+<body>
+    <h1 id="main_menu_code">Главное меню</h1>
+    <pre>
+        <code>
+            # ссылка: main_menu_code
+            # Код для создания основного меню с использованием библиотеки asciimatics
+            from asciimatics.widgets import Frame, ListBox, Layout, Label, Divider, Button, Text
+            from asciimatics.screen import Screen
+            from asciimatics.scene import Scene
+            from asciimatics.exceptions import StopApplication
+            import subprocess
+            import sys
+
+            class MenuFrame(Frame):
+                def __init__(self, screen):
+                    super(MenuFrame, self).__init__(screen, screen.height, screen.width, has_border=True, can_scroll=False, title="Main Menu")
+                    layout = Layout([1], fill_frame=True)
+                    self.add_layout(layout)
+                    layout.add_widget(Divider())
+                    layout.add_widget(Label("Select an option:"))
+                    layout.add_widget(Divider())
+
+                    layout.add_widget(Button("1. Task Manager (argparse)", self.run_task_argp))
+                    layout.add_widget(Button("2. Task Manager (Typer)", self.run_typer_task))
+                    layout.add_widget(Button("3. Task Manager (Color)", self.run_task_color))
+                    layout.add_widget(Button("4. Task Manager (Format)", self.run_task_format))
+                    layout.add_widget(Button("5. Task Manager (Pending)", self.run_task_pending))
+                    layout.add_widget(Button("6. Basic Task Manager", self.run_task))
+                    layout.add_widget(Button("7. Text Editor", self.run_text_editor))
+                    layout.add_widget(Divider())
+                    layout.add_widget(Button("Quit", self.quit))
+
+                    self.fix()
+
+                def run_task_argp(self):
+                    self._run_subprocess('task_argp.py')
+
+                def run_typer_task(self):
+                    self._run_subprocess('typer_task.py')
+
+                def run_task_color(self):
+                    self._run_subprocess('task_color.py')
+
+                def run_task_format(self):
+                    self._run_subprocess('task_format.py')
+
+                def run_task_pending(self):
+                    self._run_subprocess('task_pending.py')
+
+                def run_task(self):
+                    self._run_subprocess('task.py')
+
+                def run_text_editor(self):
+                    self._run_subprocess('editor.py')
+
+                def _run_subprocess(self, script_name):
+                    subprocess.run([sys.executable, script_name])
+
+                def quit(self):
+                    raise StopApplication("User pressed quit")
+
+            def demo(screen):
+                scenes = [
+                    Scene([MenuFrame(screen)], -1, name="Main Menu")
+                ]
+                screen.play(scenes, stop_on_resize=True)
+
+            if __name__ == "__main__":
+                Screen.wrapper(demo)
+        </code>
+    </pre>
+    <h2>Объяснение кода</h2>
+    <p>В этом разделе мы обсудим код, представленный выше (<a href="#main_menu_code">main_menu_code</a>).</p>
+    <ul>
+        <li><strong>MenuFrame класс</strong>: Этот класс отвечает за создание основного интерфейса меню.
+            <ul>
+                <li>Конструктор (<code>__init__</code>) создает компоновку и добавляет кнопки для запуска различных подпрограмм.</li>
+                <li>Методы <code>run_task_argp</code>, <code>run_typer_task</code>, и другие методы запускают соответствующие скрипты с использованием <code>subprocess.run</code>.</li>
+                <li>Метод <code>quit</code> завершает приложение.</li>
+            </ul>
+        </li>
+        <li><strong>Функция demo</strong>: Эта функция определяет сцену для отображения меню и использует <code>Screen.wrapper</code> для запуска приложения.</li>

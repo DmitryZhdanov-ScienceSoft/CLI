@@ -1,5 +1,6 @@
 import fire
 
+
 class Math(object):
     def add(self, a, b):
         return a + b
@@ -7,8 +8,10 @@ class Math(object):
     def multiply(self, a, b):
         return a * b
 
+
 def greet(name):
     return f"Hello, {name}!"
+
 
 if __name__ == '__main__':
     fire.Fire({

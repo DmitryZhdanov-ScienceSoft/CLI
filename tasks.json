@@ -1,0 +1,23 @@
+[
+    {
+        "description": "Посмотреть видео по курсу ИИ",
+        "completed": true,
+        "pending": false,
+        "start_time": "2024-06-19T18:49:35.858050",
+        "end_time": "2024-06-19T18:58:54.570634"
+    },
+    {
+        "description": "Попить чай",
+        "completed": true,
+        "pending": false,
+        "start_time": "2024-06-21T12:57:52.655177",
+        "end_time": "2024-06-21T12:57:54.445763"
+    },
+    {
+        "description": "Посмотреть вебинар",
+        "completed": false,
+        "pending": false,
+        "start_time": null,
+        "end_time": null
+    }
+]
