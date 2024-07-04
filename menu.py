@@ -1,81 +1,90 @@
-from textual.app import App
-from textual.widgets import Static, Button
-from textual.message import Message
+import cmd
+import os
+import subprocess
 
-class ButtonPressed(Message):
-    def __init__(self, sender, button_name):
-        super().__init__(sender)
-        self.button_name = button_name
 
-class CLIMenu(App):
-    async def on_mount(self):
-        # Создаем список CLI-приложений
-        title = Static("Выберите CLI-приложение для запуска:")
-        self.button1 = Button("CLI App 1", name="cli_app_1")
-        self.button2 = Button("CLI App 2", name="cli_app_2")
-        self.button3 = Button("CLI App 3", name="cli_app_3")
+class CLIMenu(cmd.Cmd):
+    intro = "Welcome to the CLI Menu. Type help or ? to list commands.\n"
+    prompt = "(CLI Menu) "
 
-        # Добавляем виджеты на экран
-        await self.mount(title)
-        await self.mount(self.button1)
-        await self.mount(self.button2)
-        await self.mount(self.button3)
+    def do_file_manager(self, arg):
+        """Run the File Manager"""
+        print("Starting File Manager...")
+        try:
+            subprocess.run(["python", "file_manager.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running File Manager: {e}")
+        except FileNotFoundError:
+            print("Error: file_manager.py not found")
 
-        # Устанавливаем фокус на первую кнопку
-        self.set_focus(self.button1)
+    def do_midjourney(self, arg):
+        """Run CLI App 2"""
+        print("Running MidJourney...")
+        try:
+            subprocess.run(["python", "midjourney_cli.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running MidJourney: {e}")
+        except FileNotFoundError:
+            print("Error: midjourney_cli.py not found")
+        # Add your code to run CLI App 2 here
 
-    async def on_button_pressed(self, message: Button.Pressed):
-        button_name = message.button.name
-        await self.handle_button_pressed(button_name)
+    def do_show_image(self, arg):
+        """Run CLI App 3"""
+        print("Show Image...")
+        try:
+            subprocess.run(["python", "image.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Image: {e}")
+        except FileNotFoundError:
+            print("Error: image.py not found")
 
-    async def handle_button_pressed(self, button_name):
-        if button_name == "cli_app_1":
-            self.run_cli_app_1()
-        elif button_name == "cli_app_2":
-            self.run_cli_app_2()
-        elif button_name == "cli_app_3":
-            self.run_cli_app_3()
+    def do_ask_gpt4o(self, arg):
+        """Ask a question"""
+        try:
+            subprocess.run(["python", "ask_rich.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    def run_cli_app_1(self):
-        # Код для запуска первого CLI-приложения
-        print("Запуск CLI App 1")
+    def do_prompt_toolkit(self, arg):
+        """Ask a question"""
+        try:
+            subprocess.run(["python", "promt_cli.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    def run_cli_app_2(self):
-        # Код для запуска второго CLI-приложения
-        print("Запуск CLI App 2")
+    def do_progress_bar(self, arg):
+        """Run the Progress Bars"""
+        try:
+            subprocess.run(["python", "progress_bar.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    def run_cli_app_3(self):
-        # Код для запуска третьего CLI-приложения
-        print("Запуск CLI App 3")
+    def do_snake(self, arg):
+        """Run the Snake Game"""
+        try:
+            subprocess.run(["python", "snake.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    async def on_key(self, event):
-        if event.key == "down":
-            self.focus_next_widget()
-        elif event.key == "up":
-            self.focus_previous_widget()
-        elif event.key == "enter":
-            focused_widget = self.focused
-            if isinstance(focused_widget, Button):
-                await self.handle_button_pressed(focused_widget.name)
+    def do_plot(self, arg):
+        """Show the Plot"""
+        try:
+            subprocess.run(["python", "plots_termplotlib.py", "show-plot"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    def focus_next_widget(self):
-        focused = self.focused
-        if focused == self.button1:
-            self.set_focus(self.button2)
-        elif focused == self.button2:
-            self.set_focus(self.button3)
-        elif focused == self.button3:
-            self.set_focus(self.button1)
+    def do_hist(self, arg):
+        """Show the Plot"""
+        try:
+            subprocess.run(["python", "plots_termplotlib.py", "show-histogram"], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error running Ask Rich: {e}")
 
-    def focus_previous_widget(self):
-        focused = self.focused
-        if focused == self.button1:
-            self.set_focus(self.button3)
-        elif focused == self.button2:
-            self.set_focus(self.button1)
-        elif focused == self.button3:
-            self.set_focus(self.button2)
+    def do_exit(self, arg):
+        """Exit the program"""
+        print("Goodbye!")
+        return True
 
-if __name__ == "__main__":
-    app = CLIMenu()
-    app.run()
+
+if __name__ == '__main__':
+    CLIMenu().cmdloop()

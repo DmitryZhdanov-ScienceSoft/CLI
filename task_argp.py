@@ -19,14 +19,15 @@ tasks = load_tasks()
 
 def add_task(task):
     """Добавить новую задачу"""
-    tasks.append({"task": task, "completed": False})
+    tasks.append({"description": task, "completed": False})
     save_tasks(tasks)
     print(f"Задача '{task}' добавлена.")
 
 def remove_task(task):
     """Удалить задачу"""
     global tasks
-    tasks = [t for t in tasks if t["task"] != task]
+    # Изменено: проверяем по 'description' вместо 'task'
+    tasks = [t for t in tasks if t["description"] != task]
     save_tasks(tasks)
     print(f"Задача '{task}' удалена.")
 
@@ -36,14 +37,16 @@ def list_tasks():
         print("Список задач:")
         for idx, task in enumerate(tasks):
             status = "✔️" if task["completed"] else "❌"
-            print(f"{idx + 1}. {status} {task['task']}")
+            # Изменено: используем 'description' вместо 'task'
+            print(f"{idx + 1}. {status} {task['description']}")
     else:
         print("Список задач пуст.")
 
 def complete_task(task):
     """Отметить задачу как выполненную"""
+    # Изменено: перебираем задачи и ищем по 'description'
     for t in tasks:
-        if t["task"] == task:
+        if t['description'] == task:
             t["completed"] = True
             save_tasks(tasks)
             print(f"Задача '{task}' отмечена как выполненная.")

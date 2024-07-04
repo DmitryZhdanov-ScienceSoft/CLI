@@ -49,7 +49,7 @@ def query_gpt4o(prompt):
 if __name__ == '__main__':
     try:
         # Используем input для получения ввода
-        prompt = input("Введите текст для генерации: ")
+        prompt = input("Задайте ваш вопрос: ")
     except UnicodeDecodeError:
         print("Ошибка декодирования Unicode. Убедитесь, что вводите текст на русском языке в UTF-8.")
         sys.exit(1)

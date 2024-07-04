@@ -10,20 +10,25 @@ ACCOUNT_HASH = "24f5ed2b-7abb-49d5-bf5c-ff259d60c42e"
 WEBHOOK_URL = ""  # Укажите URL для webhook, если требуется
 
 
-@click.group()
-def cli():
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
     """CLI для взаимодействия с MidJourney API"""
-    pass
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(generate_image)
 
 
-@click.command()
-@click.argument('prompt')
+@cli.command()
+@click.argument('prompt', required=False)
 @click.option('--api-key', default=API_KEY, help='API ключ для доступа к MidJourney API')
 @click.option('--account-hash', default=ACCOUNT_HASH, help='Account Hash, связанный с вашим Discord аккаунтом')
 @click.option('--webhook-url', default=WEBHOOK_URL, help='URL для webhook уведомлений')
 @click.option('--webhook-type', type=click.Choice(['progress', 'result']), default='result', help='Тип webhook')
 def generate_image(prompt, api_key, account_hash, webhook_url, webhook_type):
     """Создание изображения по заданному запросу (prompt)"""
+    if not prompt:
+        prompt = click.prompt("Введите запрос для создания изображения")
+    
     headers = {
         'api-key': api_key,
         'Content-Type': 'application/json'
@@ -63,7 +68,7 @@ def check_image_url(task_hash, api_key):
             click.echo(f"Результат: {result}")
             if result and result['status'] == 'done' and 'result' in result and 'url' in result['result']:
                 image_url = result['result']['url']
-                filename = f"{task_hash}.{result['result']['filename'].split('.')[-1]}"
+                filename = f"./images/{task_hash}.{result['result']['filename'].split('.')[-1]}"
                 click.echo(f"Изображение доступно по URL: {image_url}")
                 save_image(image_url, filename)
                 break
@@ -89,8 +94,6 @@ def save_image(url, filename):
     else:
         click.echo("Полученные данные не являются изображением. Проверьте URL.")
 
-
-cli.add_command(generate_image)
 
 if __name__ == '__main__':
     cli()

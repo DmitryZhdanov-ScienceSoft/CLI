@@ -1,68 +1,104 @@
-from random import randint
-from asciimatics.screen import Screen
-from asciimatics.event import KeyboardEvent
-from collections import deque
+import random
+import curses
+from curses import KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN
 
-class SnakeGame:
-    def __init__(self, screen):
-        self.screen = screen
-        self.snake = deque([(5, 5)])
-        self.food = self._place_food()
-        self.direction = (1, 0)
-        self.game_over = False
+# Инициализация
+curses.initscr()
+win = curses.newwin(20, 60, 0, 0)
+win.keypad(1)
+curses.noecho()
+curses.curs_set(0)
+win.border(0)
+win.nodelay(1)
 
-    def _place_food(self):
-        while True:
-            food = (randint(1, self.screen.width - 2), randint(1, self.screen.height - 2))
-            if food not in self.snake:
-                return food
+# Начальное положение змейки и еды
+snake = [(4, 10), (4, 9), (4, 8)]
+food = (10, 20)
 
-    def process_input(self):
-        event = self.screen.get_event()
-        if isinstance(event, KeyboardEvent):
-            if event.key_code in [ord('w'), ord('W')]:
-                if self.direction != (0, 1):  # Prevent snake from reversing
-                    self.direction = (0, -1)
-            elif event.key_code in [ord('s'), ord('S')]:
-                if self.direction != (0, -1):  # Prevent snake from reversing
-                    self.direction = (0, 1)
-            elif event.key_code in [ord('a'), ord('A')]:
-                if self.direction != (1, 0):  # Prevent snake from reversing
-                    self.direction = (-1, 0)
-            elif event.key_code in [ord('d'), ord('D')]:
-                if self.direction != (-1, 0):  # Prevent snake from reversing
-                    self.direction = (1, 0)
-            elif event.key_code in [ord('q'), ord('Q')]:
-                self.game_over = True
 
-    def update(self):
-        if self.game_over:
-            return
-        head = (self.snake[0][0] + self.direction[0], self.snake[0][1] + self.direction[1])
-        if head[0] < 0 or head[0] >= self.screen.width or head[1] < 0 or head[1] >= self.screen.height or head in self.snake:
-            self.game_over = True
-        else:
-            self.snake.appendleft(head)
-            if head == self.food:
-                self.food = self._place_food()
-            else:
-                self.snake.pop()
+# Функция для создания новой еды
+def create_food():
+    while True:
+        food = (random.randint(1, 18), random.randint(1, 58))
+        if food not in snake:
+            return food
 
-    def draw(self):
-        self.screen.clear_buffer(7, 0, 0)
-        for x, y in self.snake:
-            self.screen.print_at('O', x, y, 3)
-        self.screen.print_at('X', self.food[0], self.food[1], 2)
-        if self.game_over:
-            self.screen.print_at('GAME OVER', self.screen.width // 2 - 5, self.screen.height // 2, 1)
-        self.screen.refresh()
 
-def play_game(screen):
-    game = SnakeGame(screen)
-    while not game.game_over:
-        game.process_input()
-        game.update()
-        game.draw()
-        screen.wait_for_input(0.1)
+# Создаем начальную еду
+food = create_food()
 
-Screen.wrapper(play_game)
+# Игровая логика
+score = 0
+ESC = 27
+key = KEY_RIGHT
+
+while key != ESC:
+    win.clear()
+    win.border(0)
+    win.addstr(0, 2, 'Score : ' + str(score) + ' ')
+    win.addstr(0, 27, ' SNAKE ')
+
+    # Отрисовка еды
+    try:
+        win.addch(food[0], food[1], '#')
+    except curses.error:
+        pass  # Игнорируем ошибку, если координаты выходят за границы
+
+    # Отрисовка змейки
+    for i, c in enumerate(snake):
+        try:
+            win.addch(c[0], c[1], '*' if i == 0 else 'o')
+        except curses.error:
+            pass  # Игнорируем ошибку, если координаты выходят за границы
+
+    # Отладочная информация
+    win.addstr(19, 2, f'Food: {food}')
+
+    win.timeout(150 - (len(snake) // 5 + len(snake) // 10) % 120)
+
+    prevKey = key
+    event = win.getch()
+    key = key if event == -1 else event
+
+    if key == ord(' '):
+        key = -1
+        while key != ord(' '):
+            key = win.getch()
+        key = prevKey
+        continue
+
+    if key not in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, ESC]:
+        key = prevKey
+
+    # Вычисляем следующую координату головы
+    y = snake[0][0]
+    x = snake[0][1]
+    if key == KEY_DOWN:
+        y += 1
+    if key == KEY_UP:
+        y -= 1
+    if key == KEY_LEFT:
+        x -= 1
+    if key == KEY_RIGHT:
+        x += 1
+
+    snake.insert(0, (y, x))
+
+    # Проверка на столкновение с границами
+    if y == 0 or y == 19 or x == 0 or x == 59:
+        break
+
+    # Если змейка съела себя
+    if snake[0] in snake[1:]:
+        break
+
+    if snake[0] == food:
+        # Змейка съела еду
+        score += 1
+        food = create_food()
+    else:
+        # Двигаем змейку
+        last = snake.pop()
+
+curses.endwin()
+print(f"Final score = {score}")

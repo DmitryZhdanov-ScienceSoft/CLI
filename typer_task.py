@@ -21,7 +21,7 @@ def save_tasks(tasks):
 def add(task: str):
     """Добавить новую задачу"""
     tasks = load_tasks()
-    tasks.append({"task": task, "completed": False})
+    tasks.append({"description": task, "completed": False})
     save_tasks(tasks)
     typer.echo(f"Задача '{task}' добавлена.")
 
@@ -29,7 +29,7 @@ def add(task: str):
 def remove(task: str):
     """Удалить задачу"""
     tasks = load_tasks()
-    tasks = [t for t in tasks if t["task"] != task]
+    tasks = [t for t in tasks if t.get("description") != task]
     save_tasks(tasks)
     typer.echo(f"Задача '{task}' удалена.")
 
@@ -40,8 +40,9 @@ def list():
     if tasks:
         typer.echo("Список задач:")
         for idx, task in enumerate(tasks):
-            status = "✔️" if task["completed"] else "❌"
-            typer.echo(f"{idx + 1}. {status} {task['task']}")
+            status = "✔️" if task.get("completed", False) else "❌"
+            description = task.get("description", "Неизвестная задача")
+            typer.echo(f"{idx + 1}. {status} {description}")
     else:
         typer.echo("Список задач пуст.")
 
@@ -50,7 +51,7 @@ def complete(task: str):
     """Отметить задачу как выполненную"""
     tasks = load_tasks()
     for t in tasks:
-        if t["task"] == task:
+        if t.get("description") == task:
             t["completed"] = True
             save_tasks(tasks)
             typer.echo(f"Задача '{task}' отмечена как выполненная.")

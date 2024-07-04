@@ -1,5 +1,6 @@
 import curses
 
+
 def main(stdscr):
     curses.curs_set(0)  # Отключаем отображение курсора
     stdscr.nodelay(1)  # Делаем ввод не блокирующим
@@ -16,5 +17,6 @@ def main(stdscr):
         key = w.getch()  # Получаем ввод с клавиатуры
         if key == curses.KEY_EXIT or key == ord('q'):
             break
+
 
 curses.wrapper(main)

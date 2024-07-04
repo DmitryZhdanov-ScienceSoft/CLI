@@ -1,5 +1,6 @@
 import urwid
 import os
+import sys
 
 
 class FileManagerWidget(urwid.WidgetWrap):
@@ -30,7 +31,8 @@ class FileManagerApp:
         self.widget = FileManagerWidget(self.current_folder)
         urwid.connect_signal(self.widget, 'file_selected', self.handle_file_selected)
 
-        self.main_loop = urwid.MainLoop(self.widget, palette=[('reversed', 'standout', '')])
+        self.main_loop = urwid.MainLoop(self.widget, palette=[('reversed', 'standout', '')],
+            unhandled_input=self.handle_input)
         self.main_loop.run()
 
     def handle_file_selected(self, folder_path, filename):
@@ -40,8 +42,24 @@ class FileManagerApp:
             self.widget.folder_path = selected_path
             self.widget.refresh_file_list()
         else:
+            try:
+                with open(selected_path, 'r') as file:
+                    content = file.read()
+                self.show_file_content(content)
+            except Exception as e:
+                self.show_file_content(f"Ошибка при открытии файла: {e}")
+
+    def show_file_content(self, content):
+        text_widget = urwid.Text(content)
+        fill = urwid.Filler(text_widget, 'top')
+        self.main_loop.widget = fill
+
+    def handle_input(self, key):
+        if key == 'q':
             self.main_loop.stop()
+            sys.exit(1)
 
 
 if __name__ == '__main__':
     FileManagerApp()
+    print("File manager started")

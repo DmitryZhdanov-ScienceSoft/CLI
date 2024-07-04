@@ -9,7 +9,8 @@ class Math(object):
         return a * b
 
 
-def greet(name):
+def greet():
+    name = input("Enter your name: ")
     return f"Hello, {name}!"
 
 
